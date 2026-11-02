@@ -1,0 +1,20 @@
+# --- Python ---
+# Virtual environment (never upload)
+.venv/
+venv/
+# Python cache files
+__pycache__/
+*.pyc
+# Secrets such as passwords or API keys
+.env
+
+# --- Project-specific ---
+# Image data stays local (too large; downloaded via instructions in README)
+data/
+
+# Trained models stay local for now; keep the empty folder
+models/*
+!models/.gitkeep
+
+# macOS system files
+.DS_Store
