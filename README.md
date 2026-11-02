@@ -33,7 +33,34 @@ python -m pip install -r requirements.txt
 
 ## Data
 
-_To be added: dataset source, licence and download instructions._
+## Data
+
+This project uses the **Apparel images dataset** by trolukovich, published on Kaggle under the CC0: Public Domain licence:
+https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset
+
+The dataset contains 11,385 images in 24 folders named `colour_item` (e.g. `black_dress`). For this project the colours are merged into five item classes:
+
+| Class | Images |
+|---|---|
+| shoes | 3,418 |
+| pants | 2,789 |
+| dress | 2,570 |
+| shirt | 1,686 |
+| shorts | 922 |
+
+The images are not stored in this repository. To reproduce:
+
+1. Log in to Kaggle and download the dataset as a zip file (about 270 MB) from the link above.
+2. Unzip it into `data/raw/` inside the project folder:
+   ```bash
+   mkdir -p data/raw
+   unzip -q path/to/archive.zip -d data/raw
+   ```
+3. Check the data:
+   ```bash
+   python src/check_data.py
+   ```
+   Results you should have: 11,385 images, 0 broken.
 
 ## Usage
 
