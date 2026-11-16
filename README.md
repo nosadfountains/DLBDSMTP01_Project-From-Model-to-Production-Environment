@@ -62,6 +62,21 @@ The images are not stored in this repository. To reproduce:
    ```
    Results you should have: 11,385 images, 0 broken.
 
+4. Split the data into train, validation, test and an "incoming" pool:
+   ```bash
+   python src/split_data.py
+   ```
+   The images are not copied or moved. The script writes `data/split.csv` with one row per image (path, colour, class, split). It first removes exact duplicate images and images saved under two different classes, then splits per colour_item folder with a fixed seed (42):
+
+   | Split | Images | Used for |
+   |---|---|---|
+   | train | 6,822 | training the model |
+   | val | 1,706 | comparing model settings |
+   | test | 1,706 | final evaluation, used once |
+   | incoming | 1,138 | never used in training; simulates new refund photos for the nightly batch |
+
+   Results you should have: 11,372 images after removing 13 (duplicates and one image with conflicting classes).
+   
 ## Usage
 
 _To be added: training the model, starting the API, running the batch job._
