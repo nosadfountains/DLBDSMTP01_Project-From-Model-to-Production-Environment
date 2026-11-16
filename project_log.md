@@ -32,3 +32,12 @@
 - **Limitations to mention in the talk:** colour gaps (e.g. no red shirts, no green dresses); web/studio images differ from real refund photos; the origin of the images is not stated on Kaggle
 - **Open decisions for WP4:** how to handle the class imbalance; how to bring all images to one size
 - **Reference list entry (to format per IU citation guidelines):** trolukovich, "Apparel images dataset", Kaggle, licence CC0: Public Domain, https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset, accessed 2026-11-02
+
+### Data split (2026-11-16)
+- **Did:** Wrote `src/split_data.py`; it writes `data/split.csv` (one row per image: path, colour, class, split). Images are not copied or moved
+- **Decision:** 60 % train, 15 % validation, 15 % test, 10 % "incoming" pool that is never used in training and feeds the simulated nightly batch (WP6); fixed seed 42 so the split can be reproduced
+- **Decision:** Split per colour_item folder (stratified), so rare combinations such as brown shorts appear in every part
+- **Problem:** The dataset contained 11 extra copies of identical images and one image saved under two different classes
+- **Solution:** Removed exact duplicates before splitting (prevents the same image appearing in training and test); dropped both copies of the image with conflicting classes
+- **Result:** 11,372 images: train 6,822, validation 1,706, test 1,706, incoming 1,138
+- **Hours:**
