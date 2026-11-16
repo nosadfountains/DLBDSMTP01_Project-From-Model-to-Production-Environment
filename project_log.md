@@ -40,4 +40,18 @@
 - **Problem:** The dataset contained 11 extra copies of identical images and one image saved under two different classes
 - **Solution:** Removed exact duplicates before splitting (prevents the same image appearing in training and test); dropped both copies of the image with conflicting classes
 - **Result:** 11,372 images: train 6,822, validation 1,706, test 1,706, incoming 1,138
-- **Hours:**
+- **Hours:2**
+
+## 2026-11-16 – WP2 Conceptual architecture (v1)
+
+Diagram: docs/architecture_v1.png
+
+| Decision | Choice | Reason | Alternatives considered |
+|---|---|---|---|
+| Trigger | cron nightly + manual "run now" command (same script) | Task requires nightly batch runs; manual run lets the supervisor and the demo see results immediately | launchd (catches missed runs, harder setup); GitHub Actions (cannot reach local images or API); event-driven (not batch) |
+| Batch job → model | HTTP calls to the Flask API | Keeps the model-as-a-service separation | Load model file directly (simpler, weaker design) |
+| Image storage | data/incoming → data/processed, corrupt files → data/failed | Simple, visible, prevents double processing | Track processed IDs in a file |
+| Results | One CSV per night in results/ | Opens in Excel for the refund team | SQLite (better for queries across nights) |
+| Model storage | Versioned file in models/ + metadata file | No extra tool | mlflow model registry |
+
+Open point: cron skips runs while the Mac is asleep → handle in WP6.
