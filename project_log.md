@@ -55,3 +55,29 @@ Diagram: docs/architecture_v1.png
 | Model storage | Versioned file in models/ + metadata file | No extra tool | mlflow model registry |
 
 Open point: cron skips runs while the Mac is asleep → handle in WP6.
+
+## 2026-11-17 – WP4 Model (v1)
+
+- **Did:** Wrote `src/preprocessing.py` (shared image preparation for training and the API), `src/train.py` (compares models, trains the final one, evaluates it once on the test set) and `src/evaluate_model.py` (reloads the saved model and checks the test numbers); added `tests/test_preprocessing.py` (4 tests, all passed)
+- **Decision:** Classic machine learning with scikit-learn, as planned on 2 Nov; the task asks for a simple model checked with basic statistics
+- **Decision:** Preprocessing: 64×64 px, grayscale, padded to a square with white, pixel values scaled to 0–1. Grayscale because colour does not define the class and the dataset has colour gaps; padding instead of stretching or cropping so shapes stay intact
+- **Decision:** Class imbalance handled with `class_weight="balanced"`; the best model is picked by macro F1, and metrics are reported per class
+- **Model comparison (trained on train, scored on validation):**
+
+  | Model | Accuracy | Macro F1 | Training time |
+  |---|---|---|---|
+  | Random forest (chosen) | 0.847 | 0.825 | 5 s |
+  | PCA + SVM | 0.830 | 0.798 | 13 s |
+  | PCA + logistic regression | 0.744 | 0.716 | 2 s |
+  | Dummy baseline (always the biggest class) | 0.300 | 0.092 | 0 s |
+
+- **Final model:** random forest retrained on train + validation (8,528 images), evaluated once on the test set (1,706 images): accuracy 0.857, balanced accuracy 0.830, macro F1 0.835
+- **Per class (test):** shirt F1 0.901, shoes 0.876, pants 0.863, dress 0.858, shorts 0.674. Shorts, the smallest class, is the weakest: recall 0.638, so about 1 in 3 shorts is missed
+- **Check:** `src/evaluate_model.py` reloaded the model in a new Python session and reproduced accuracy and macro F1 exactly
+- **Saved:** `models/model_v1.joblib` (14.9 MB) and `models/model_v1.json` (classes, preprocessing settings, metrics, versions) stay local; `docs/model_report_v1.txt` and `docs/confusion_matrix_v1.png` are on GitHub
+- **Problem:** The first push of `src/preprocessing.py` contained the code of the test file
+- **Solution:** Replaced the content and pushed again (commit "error correction"); learned to check the first lines of a file with `head -2` before committing
+- **Problem:** scikit-learn 1.9 deprecates `SVC(probability=True)`
+- **Solution:** Used `CalibratedClassifierCV(SVC(...), ensemble=False)` instead
+- **Limitations for the talk:** lower accuracy than a pretrained neural network would reach; shorts often missed; studio images differ from real refund photos
+- **Hours:18
