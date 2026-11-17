@@ -1,0 +1,24 @@
+Model v1 (random_forest), created 2026-11-17T07:34:55
+
+Validation comparison (trained on train, scored on validation):
+                  model  val_accuracy  val_macro_f1  train_seconds
+          random_forest         0.847         0.825          5.390
+                pca_svm         0.830         0.798         12.775
+pca_logistic_regression         0.744         0.716          2.361
+    dummy_most_frequent         0.300         0.092          0.020
+
+Test set (1706 images, used once):
+              precision    recall  f1-score   support
+
+       dress      0.817     0.904     0.858       385
+       pants      0.891     0.838     0.863       419
+       shirt      0.914     0.888     0.901       251
+       shoes      0.871     0.881     0.876       513
+      shorts      0.715     0.638     0.674       138
+
+    accuracy                          0.857      1706
+   macro avg      0.842     0.830     0.835      1706
+weighted avg      0.857     0.857     0.856      1706
+
+Accuracy:          0.857
+Balanced accuracy: 0.830
