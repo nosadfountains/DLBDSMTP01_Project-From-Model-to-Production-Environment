@@ -81,3 +81,20 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Solution:** Used `CalibratedClassifierCV(SVC(...), ensemble=False)` instead
 - **Limitations for the talk:** lower accuracy than a pretrained neural network would reach; shorts often missed; studio images differ from real refund photos
 - **Hours:18
+
+## 2026-11-17 – WP5 Model as a REST service
+
+- **Did:** Wrote `src/api.py` (Flask service with `GET /health`, `GET /model-info`, `POST /predict`), `src/predict_client.py` (sends images to the API and prints the answer) and `tests/test_api.py` (8 tests: valid batch, API equals direct model prediction, corrupt image, empty request, too many images, no model, wrong address)
+- **Decision:** Images are sent as a normal file upload (multipart, field name `images`); the answer is JSON with id, status, top class, confidence and the probability of every class
+- **Reason:** simplest option; no extra encoding step and easy to test with curl. Alternative: Base64 inside JSON (one uniform format, but about a third larger and an extra encode/decode step)
+- **Decision:** A corrupt image only marks that image as `"status": "error"`; the other images in the request are still predicted
+- **Reason:** the batch job (WP6) can move exactly the bad image to `data/failed/`. Alternative: reject the whole request (simpler code, but one bad photo would block a whole chunk)
+- **Decision:** At most 64 images (and 50 MB) per request; the batch job sends a night in chunks
+- **Decision:** Error answers: 400 no images, 413 too many images, 503 no model loaded, 404 wrong address, 500 unexpected error (full details only in the log, short message to the client)
+- **Decision:** Every request is logged in `logs/api.log` (number of images, ok, failed, duration); `logs/` is in `.gitignore`
+- **Decision:** The API uses the same `src/preprocessing.py` as training and refuses to load a model whose preprocessing settings differ
+- **Decision:** No Docker (scope decision of 16 Nov)
+- **Problem avoided:** Port 5000, Flask's default, is used by AirPlay on macOS; the API runs on port 8000 instead
+- **Result:** 5 random test images predicted with the real model; a text file sent as an image came back as `ERROR: not a readable image` while the API kept running
+- **Observation:** green shorts were predicted as shoes with 51 % confidence and a blue dress as dress with only 46 % → idea for WP7: send low-confidence images to a person for review
+- **Hours: 6**
