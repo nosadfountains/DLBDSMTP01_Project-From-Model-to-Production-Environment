@@ -11,6 +11,8 @@ A shop for sustainable products receives photos of returned items. This project 
 
 Everything runs locally on one computer. The focus is on getting the model into production, not on model accuracy.
 
+**Quick start:** the trained model is included, so after [Setup](#setup) you can [start the API](#start-the-api) straight away. The dataset is only needed for training and for the nightly batch.
+
 ## Contents
 
 1. [Architecture](#architecture)
@@ -49,7 +51,7 @@ Everything runs locally on one computer. The focus is on getting the model into 
 | `requirements.txt` | Python packages with exact versions |
 | `project_log.md` | Decisions, problems and solutions, in order |
 | `data/` | Images and split file (not on GitHub, see [Data](#data)) |
-| `models/` | Trained model (not on GitHub, see [Train the model](#train-the-model)) |
+| `models/` | The trained model v1 (`model_v1.joblib`, about 15 MB) and its metadata (`model_v1.json`) |
 | `results/`, `logs/`, `reports/` | Created when the system runs (not on GitHub) |
 
 ## Requirements
@@ -125,18 +127,22 @@ The images are not stored in this repository. To reproduce:
 
 ## Train the model
 
+The trained model is already in `models/`, so this step is **optional**: it shows that the code rebuilds the same model. Training overwrites `models/model_v1.joblib`.
+
 ```bash
 python src/train.py
 ```
 
 Takes a few minutes, most of it for reading the images. The script compares a baseline and three scikit-learn models on the validation images, picks the best by macro F1 (a random forest on 64×64 grayscale pixels), retrains it on train + validation and evaluates it **once** on the test images. It writes:
 
-- `models/model_v1.joblib` (about 15 MB) and `models/model_v1.json` (classes, preprocessing settings, metrics)
+- `models/model_v1.joblib` (about 15 MB) and `models/model_v1.json` (classes, preprocessing settings, metrics, library versions)
 - `docs/model_report_v1.txt` and `docs/confusion_matrix_v1.png`
 
 Result you should get: test accuracy 0.857 and macro F1 0.835 (very small differences are possible on other computers or library versions).
 
-To check that the saved model loads and reproduces these numbers:
+The model file only loads reliably with the scikit-learn version from `requirements.txt`. A `.joblib` file can run code when it is loaded, so only load model files from a source you trust.
+
+To check that the saved model loads and reproduces these numbers (needs the dataset):
 
 ```bash
 python src/evaluate_model.py
