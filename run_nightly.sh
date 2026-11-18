@@ -34,5 +34,10 @@ if [ "$started_api" = yes ]; then
     kill "$api_pid"
 fi
 
+# WP7: check the run and update reports/ and the review queue.
+# Its own result does not change the exit code: that stays the batch job's.
+"$PYTHON" src/monitor.py > /dev/null || echo "Monitoring found alerts: see reports/monitoring_report.txt"
+
+
 echo "=== Finished with exit code $status ==="
 exit $status
