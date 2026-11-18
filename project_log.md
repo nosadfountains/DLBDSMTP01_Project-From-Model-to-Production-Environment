@@ -116,3 +116,30 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Solution:** Found it under Displays → Erweitert ("Kein automatisches Aktivieren des Ruhezustands im Netzbetrieb bei ausgeschaltetem Display")
 - **Observation:** 3 of the first 10 images had a top-class confidence below 0.55 (0.27, 0.33, 0.52) → review queue in WP7
 - **Hours:2**
+
+## 2026-11-18 – WP7 Monitoring
+
+- **Did:** Wrote `src/monitor.py` (reads the logs and results, checks them, writes a report, a dashboard picture and a review queue) and `tests/test_monitor.py` (9 tests: normal night, review queue, failed run, missed night, drift, accuracy drop, many unsure images, threshold table, empty project); all 26 tests passed. `run_nightly.sh` now runs the monitoring after every batch; `reports/` is in `.gitignore`
+- **Decision:** Monitoring is a separate script that only reads what the API and the batch job write
+- **Reason:** it cannot break the tested batch job, and it can also be run by hand. Alternative: checks inside `batch_predict.py` (one file less, but changes tested code)
+- **Decision:** Technical checks: last run failed → critical; no run with new images for 26 h, images left in `data/incoming/`, unreadable images, API error lines, a request slower than 5 s → warning
+- **Decision:** Model checks, only for nights with at least 30 images: a class share more than 15 percentage points away from training → possible drift; more than 30 % of images below confidence 0.5 → warning; accuracy more than 10 points below the test set → warning
+- **Reason:** with about 100 images a night the numbers move by chance; smaller nights would give false alarms
+- **Decision:** Images with a confidence below 0.5 go into `results/review_queue_<date>.csv` for a person to check (most unsure first, with the second most likely class and an empty column for the checked class)
+- **Ground-truth gap:** in real life the true class of a nightly photo is unknown. Here `data/delivered_labels.csv` plays the role of staff who check photos by hand; the batch job never reads it
+- **Result:** night of 17 Nov: 120 images, accuracy 85.8 % (test set 85.7 %), no alerts. Three manual "run now" batches on 18 Nov: 300 images, accuracy 86.3 %, no alerts
+- **Threshold comparison (420 checked images):**
+
+  | Threshold | Sent to review | Mistakes caught | Accuracy of the rest |
+  |---|---|---|---|
+  | 0.4 | 11 % | 47 % | 91.7 % |
+  | 0.5 (chosen) | 21 % | 74 % | 95.5 % |
+  | 0.6 | 33 % | 86 % | 97.2 % |
+  | 0.7 | 43 % | 93 % | 98.3 % |
+
+- **Decision:** Keep 0.5: from 0.4 to 0.5 every 2.6 extra checks catch one more mistake, from 0.5 to 0.6 it takes about 7. If a wrong category were expensive, 0.6 would be the safer choice. The alert limit stays at 30 % (normal nights: 19–24 %)
+- **Not done (by choice):** e-mail alerts (nobody is notified actively; alerts are in the report and `logs/monitor.log`), mlflow (one more tool)
+- **Constraints for the talk:** the API has no login and no HTTPS; it only listens on the Mac itself (127.0.0.1). Production would need an API key, HTTPS and access rights on `results/`; refund photos may show personal data. The manual batches of 18 Nov are not real nights
+- **Problem:** typed two commands on one line (`./run_nightly.shpython ...`) → "No such file or directory"
+- **Solution:** one command per line
+- **Hours:1**
