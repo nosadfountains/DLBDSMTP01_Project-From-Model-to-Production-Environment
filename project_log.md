@@ -98,3 +98,21 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Result:** 5 random test images predicted with the real model; a text file sent as an image came back as `ERROR: not a readable image` while the API kept running
 - **Observation:** green shorts were predicted as shoes with 51 % confidence and a blue dress as dress with only 46 % → idea for WP7: send low-confidence images to a person for review
 - **Hours: 6**
+
+## 2026-11-17 – WP6 Nightly batch processing
+
+- **Did:** Wrote `src/batch_predict.py` (sends waiting images to the API in chunks and saves the results), `src/simulate_night.py` (delivers new "refund photos" from the incoming pool), `run_nightly.sh` (starts the API, runs the batch job, stops the API) and `tests/test_batch.py` (5 tests); 17 tests pass in total
+- **Decision:** Images wait in `data/incoming/`; predicted images move to `data/processed/`, unreadable ones to `data/failed/`; results go to `results/predictions_<date>.csv`; every run adds one row to `logs/run_summary.csv`
+- **Decision:** Results are saved first, then the image is moved, so a crash can at worst repeat a row but never lose a result
+- **Decision:** If the API is down or a chunk fails, the remaining images stay in `data/incoming/` for the next run (idempotent: rerunning is always safe)
+- **Decision:** The API runs only during the nightly job (started and stopped by `run_nightly.sh`). Alternative: an API that runs all the time (more realistic, but a terminal or service would have to stay open)
+- **Decision:** `simulate_night.py` writes the true class of each delivered image to `data/delivered_labels.csv`; the batch job never reads it; it is kept for checking nightly accuracy in WP7
+- **Decision (trigger):** cron. Tested with a run every 5 minutes; final schedule: 100 new images at 18:00, batch run at 22:15, after most shops close at 22:00
+- **Constraint:** cron only runs while the Mac is on. I cannot keep it on overnight, so runs happen on evenings it is on; a missed evening loses nothing because the images wait for the next run. In production this would run on a server or in the cloud (optional WP8)
+- **Results:** manual run: 10 images predicted in 0.2 s, status ok; rerun: 0 new images (nothing predicted twice); cron run at 08:20 without me: 10 images, exit code 0
+- **Problem:** Two commands pasted onto one line (`./run_nightly.shcat ...`) → "No such file or directory"
+- **Solution:** Run one command per line
+- **Problem:** The "prevent sleep" setting was not under Batterie → Optionen on my macOS
+- **Solution:** Found it under Displays → Erweitert ("Kein automatisches Aktivieren des Ruhezustands im Netzbetrieb bei ausgeschaltetem Display")
+- **Observation:** 3 of the first 10 images had a top-class confidence below 0.55 (0.27, 0.33, 0.52) → review queue in WP7
+- **Hours:2**
