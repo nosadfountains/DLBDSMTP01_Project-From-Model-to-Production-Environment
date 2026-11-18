@@ -12,9 +12,12 @@ __pycache__/
 # Image data stays local (too large; downloaded via instructions in README)
 data/
 
-# Trained models stay local for now; keep the empty folder
+# Trained models: only the final model v1 is on GitHub (decision 18 Nov);
+# other versions stay local
 models/*
 !models/.gitkeep
+!models/model_v1.joblib
+!models/model_v1.json
 
 # macOS system files
 .DS_Store

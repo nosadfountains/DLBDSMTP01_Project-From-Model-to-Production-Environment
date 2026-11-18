@@ -1,0 +1,125 @@
+{
+  "version": "v1",
+  "created": "2026-11-17T07:34:55",
+  "model_type": "random_forest",
+  "classes": [
+    "dress",
+    "pants",
+    "shirt",
+    "shoes",
+    "shorts"
+  ],
+  "preprocessing": {
+    "image_size": 64,
+    "grayscale": true,
+    "resize_method": "pad_to_square",
+    "pad_colour": 255,
+    "scale": "0-1"
+  },
+  "trained_on": "train + validation",
+  "n_training_images": 8528,
+  "validation_comparison": [
+    {
+      "model": "random_forest",
+      "val_accuracy": 0.847010550996483,
+      "val_macro_f1": 0.8250152604683194,
+      "train_seconds": 5.389731778000169
+    },
+    {
+      "model": "pca_svm",
+      "val_accuracy": 0.8300117233294255,
+      "val_macro_f1": 0.7984894464442054,
+      "train_seconds": 12.774914159000218
+    },
+    {
+      "model": "pca_logistic_regression",
+      "val_accuracy": 0.7438452520515827,
+      "val_macro_f1": 0.7163988317295021,
+      "train_seconds": 2.360614364999492
+    },
+    {
+      "model": "dummy_most_frequent",
+      "val_accuracy": 0.30011723329425555,
+      "val_macro_f1": 0.09233543733092876,
+      "train_seconds": 0.02034353899944108
+    }
+  ],
+  "test_metrics": {
+    "accuracy": 0.8569753810082064,
+    "balanced_accuracy": 0.829764785387697,
+    "macro_f1": 0.8345953966502189,
+    "per_class": {
+      "dress": {
+        "precision": 0.8169014084507042,
+        "recall": 0.9038961038961039,
+        "f1-score": 0.8581997533908755,
+        "support": 385.0
+      },
+      "pants": {
+        "precision": 0.8908629441624365,
+        "recall": 0.837708830548926,
+        "f1-score": 0.8634686346863468,
+        "support": 419.0
+      },
+      "shirt": {
+        "precision": 0.9139344262295082,
+        "recall": 0.8884462151394422,
+        "f1-score": 0.901010101010101,
+        "support": 251.0
+      },
+      "shoes": {
+        "precision": 0.8709055876685935,
+        "recall": 0.8810916179337231,
+        "f1-score": 0.875968992248062,
+        "support": 513.0
+      },
+      "shorts": {
+        "precision": 0.7154471544715447,
+        "recall": 0.6376811594202898,
+        "f1-score": 0.6743295019157088,
+        "support": 138.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        348,
+        9,
+        7,
+        15,
+        6
+      ],
+      [
+        30,
+        351,
+        4,
+        23,
+        11
+      ],
+      [
+        9,
+        1,
+        223,
+        12,
+        6
+      ],
+      [
+        29,
+        17,
+        3,
+        452,
+        12
+      ],
+      [
+        10,
+        16,
+        7,
+        17,
+        88
+      ]
+    ],
+    "n_images": 1706
+  },
+  "random_seed": 42,
+  "python_version": "3.14.0",
+  "sklearn_version": "1.9.1"
+}
