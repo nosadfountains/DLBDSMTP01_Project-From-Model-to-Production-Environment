@@ -143,3 +143,25 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Problem:** typed two commands on one line (`./run_nightly.shpython ...`) → "No such file or directory"
 - **Solution:** one command per line
 - **Hours:1**
+
+## 2026-11-18 – Re-planning
+
+- **Decision:** Cloud deployment (Task step 6, optional) is not done. The plan's condition for it was met (WP1–WP7 done, more than a week of buffer), but I preferred to finish earlier
+- **Reason:** not needed for the top grade; it would cost several days, possibly money and new sources of errors. In the talk the cloud is named as the next step, because it would remove the "laptop must be on" constraint
+- **Consequence:** the work packages after WP7 were renumbered (WP9–WP12 are now WP8–WP11); the submission moves from Sun 29 Nov to Fri 27 Nov, every work package keeps its number of days
+
+## 2026-11-18 – WP8 Documentation and reproducibility (in progress)
+
+- **Did:** Rewrote `README.md` (purpose, architecture, setup, data, training, API with example requests and error codes, run now and cron, monitoring, tests, results, limitations, sources); drew `docs/architecture_v2.png` (the system as built, including arrivals, monitoring and review queue); renamed `docs/architecture_v1.png.png` to `docs/architecture_v1.png`
+- **Fresh-clone test:** the repository was cloned into an empty folder (Linux, Python 3.13), `requirements.txt` installed, all 26 tests passed, every README step ran on stand-in images, and the API started with the uploaded model without training. A second test on my Mac was skipped by choice: the Mac already runs the same pinned versions every day
+- **Problem found:** the README said "Python 3.11 or 3.12", but the pinned numpy and scipy versions need Python 3.12 or newer
+- **Solution:** the README now says "3.12 or newer (tested with 3.14 on macOS and 3.13 on Linux)"
+- **Decision:** the trained model (`models/model_v1.joblib`, 14.9 MB, and `model_v1.json`) is on GitHub; `.gitignore` lets only version 1 through
+- **Reason:** the API can be started right after setup, with exactly the graded model. Against it: the file stays in the Git history and only loads reliably with the pinned scikit-learn version. Alternative: keep it local and let the reader train it (a few minutes)
+- **Problem:** `git push` of the model failed with "RPC failed; HTTP 400"
+- **Solution:** `git config http.postBuffer 524288000`; Git's default buffer of 1 MB is too small for the 15 MB file
+- **Problem:** the new README and the diagram were not on GitHub after the push, because the downloaded files had not reached the project folder; the commit was "clean"
+- **Solution:** checked with `git status` and `ls docs` before each push; the files were put into the project folder directly
+- **Check:** the repository is public (it downloads without a login)
+- **Still to do:** screenshots for the slides, reflection
+- **Hours:**

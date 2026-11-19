@@ -1,0 +1,22 @@
+One scheduled evening without manual help: 17 Nov 2026
+
+18:00  cron starts src/simulate_night.py (logs/cron.log):
+  Delivered 100 new images to data/incoming/
+  Still in the pool: 1018 of 1138
+
+22:15  cron starts run_nightly.sh (logs/cron.log):
+  === Nightly run 2026-11-17 22:15:00 ===
+  Starting the API ...
+  2026-11-17 22:15:08,821 INFO Run started: 100 new images in /Users/Rebecca/Projects/DLBDSMTP01-Project-From-Model-to-Production-Environment/data/incoming
+  2026-11-17 22:15:09,763 INFO Run finished: status=ok predicted=100 failed=0 left=0 (1.0 s)
+  Stopping the API ...
+  === Finished with exit code 0 ===
+
+API requests during the run (logs/api.log): one chunk of 64 images, one of 36
+  2026-11-17 22:15:07,608 INFO Model v1 loaded (random_forest)
+  2026-11-17 22:15:09,271 INFO predict images=64 ok=64 failed=0 duration_ms=397
+  2026-11-17 22:15:09,746 INFO predict images=36 ok=36 failed=0 duration_ms=269
+
+Run summary row (logs/run_summary.csv):
+  started,status,images_found,predicted,failed_images,left_in_incoming,model_version,duration_s,results_file
+  2026-11-17T22:15:08,ok,100,100,0,0,v1,1.0,predictions_2026-11-17.csv
