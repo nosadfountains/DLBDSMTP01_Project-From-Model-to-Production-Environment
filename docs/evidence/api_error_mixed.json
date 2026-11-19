@@ -1,0 +1,1 @@
+{"model_version":"v1","n_failed":1,"n_images":2,"predictions":[{"error":"not a readable image (UnidentifiedImageError)","id":"not_an_image.jpg","status":"error"},{"confidence":0.969,"id":"00271191db9b1fd604064a480239651950d348de.jpg","probabilities":{"dress":0.0,"pants":0.0067,"shirt":0.0,"shoes":0.969,"shorts":0.0243},"status":"ok","top_class":"shoes"}]}

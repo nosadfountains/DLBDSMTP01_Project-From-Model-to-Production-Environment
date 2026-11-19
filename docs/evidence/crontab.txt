@@ -1,0 +1,2 @@
+0 18 * * * cd /Users/Rebecca/Projects/DLBDSMTP01-Project-From-Model-to-Production-Environment && .venv/bin/python src/simulate_night.py >> logs/cron.log 2>&1
+15 22 * * * /Users/Rebecca/Projects/DLBDSMTP01-Project-From-Model-to-Production-Environment/run_nightly.sh >> /Users/Rebecca/Projects/DLBDSMTP01-Project-From-Model-to-Production-Environment/logs/cron.log 2>&1

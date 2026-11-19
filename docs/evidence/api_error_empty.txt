@@ -1,0 +1,8 @@
+HTTP/1.1 400 BAD REQUEST
+Server: Werkzeug/3.1.9 Python/3.14.0
+Date: Thu, 19 Nov 2026 08:16:37 GMT
+Content-Type: application/json
+Content-Length: 86
+Connection: close
+
+{"error":"No images found. Send them as a file upload with the field name 'images'."}

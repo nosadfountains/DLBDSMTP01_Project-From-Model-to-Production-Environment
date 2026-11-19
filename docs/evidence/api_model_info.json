@@ -1,0 +1,1 @@
+{"classes":["dress","pants","shirt","shoes","shorts"],"max_batch_size":64,"model_type":"random_forest","preprocessing":{"grayscale":true,"image_size":64,"pad_colour":255,"resize_method":"pad_to_square","scale":"0-1"},"test_metrics":{"accuracy":0.8569753810082064,"balanced_accuracy":0.829764785387697,"macro_f1":0.8345953966502189},"version":"v1"}
