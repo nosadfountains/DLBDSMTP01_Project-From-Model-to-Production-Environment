@@ -1,12 +1,12 @@
 # Project Log
 
-## 2026-10-29
+## Setup: GitHub repository
 - **Did:** Created the GitHub repository and cloned it in VS Code
 - **Problem:** "Publish to GitHub" button was not shown in VS Code; the Cmd+Shift+P shortcut did not work
 - **Solution:** Created the repository on github.com first, then cloned it via View → Command Palette → "Git: Clone"
-- **Hours:**
 
-## 2026-11-02
+
+## Setup: environment and project structure
 - **Did:** Set up virtual environment, base packages, requirements.txt, folder structure, .gitignore, README and project log
 - **Problem:** `python: command not found`
 - **Solution:** The environment was not active; activated it with `source .venv/bin/activate`, later set it as the VS Code interpreter so it activates automatically
@@ -21,9 +21,9 @@
 - **Solution:** Added a .gitignore for `.venv/`, `data/`, model files, cache files, secrets and `.DS_Store`
 - **Problem:** Test file name contained `#` and spaces, which breaks Python imports and terminal commands
 - **Solution:** Deleted the file
-- **Hours: 1:30h
 
-### WP3 – Dataset (2026-11-02)
+
+### WP3 – Dataset
 - **Did:** Compared three Kaggle datasets (Apparel images, Fashion Product Images (Small), Clothing dataset full); downloaded the chosen one into `data/raw/`; wrote `src/check_data.py` to check it
 - **Decision:** Apparel images dataset (trolukovich, CC0); colours merged into five classes: shoes, pants, dress, shirt, shorts
 - **Reasons:** simple folder-per-class structure, clear licence, manageable size (about 270 MB), enough images per class; keeps the focus on the API and batch processing, as the task asks
@@ -31,18 +31,18 @@
 - **Data check result:** 11,385 images, 0 broken; class imbalance (shoes 3,418 vs shorts 922); image sizes vary (width 117–474 px, height 154–1,377 px)
 - **Limitations to mention in the talk:** colour gaps (e.g. no red shirts, no green dresses); web/studio images differ from real refund photos; the origin of the images is not stated on Kaggle
 - **Open decisions for WP4:** how to handle the class imbalance; how to bring all images to one size
-- **Reference list entry (to format per IU citation guidelines):** trolukovich, "Apparel images dataset", Kaggle, licence CC0: Public Domain, https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset, accessed 2026-11-02
+- **Reference list entry (to format per IU citation guidelines):** trolukovich, "Apparel images dataset", Kaggle, licence CC0: Public Domain, https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset
 
-### Data split (2026-11-16)
+### Data split
 - **Did:** Wrote `src/split_data.py`; it writes `data/split.csv` (one row per image: path, colour, class, split). Images are not copied or moved
 - **Decision:** 60 % train, 15 % validation, 15 % test, 10 % "incoming" pool that is never used in training and feeds the simulated nightly batch (WP6); fixed seed 42 so the split can be reproduced
 - **Decision:** Split per colour_item folder (stratified), so rare combinations such as brown shorts appear in every part
 - **Problem:** The dataset contained 11 extra copies of identical images and one image saved under two different classes
 - **Solution:** Removed exact duplicates before splitting (prevents the same image appearing in training and test); dropped both copies of the image with conflicting classes
 - **Result:** 11,372 images: train 6,822, validation 1,706, test 1,706, incoming 1,138
-- **Hours:2**
 
-## 2026-11-16 – WP2 Conceptual architecture (v1)
+
+## WP2 Conceptual architecture (v1)
 
 Diagram: docs/architecture_v1.png
 
@@ -56,10 +56,10 @@ Diagram: docs/architecture_v1.png
 
 Open point: cron skips runs while the Mac is asleep → handle in WP6.
 
-## 2026-11-17 – WP4 Model (v1)
+## WP4 Model (v1)
 
 - **Did:** Wrote `src/preprocessing.py` (shared image preparation for training and the API), `src/train.py` (compares models, trains the final one, evaluates it once on the test set) and `src/evaluate_model.py` (reloads the saved model and checks the test numbers); added `tests/test_preprocessing.py` (4 tests, all passed)
-- **Decision:** Classic machine learning with scikit-learn, as planned on 2 Nov; the task asks for a simple model checked with basic statistics
+- **Decision:** Classic machine learning with scikit-learn, as planned at the start; the task asks for a simple model checked with basic statistics
 - **Decision:** Preprocessing: 64×64 px, grayscale, padded to a square with white, pixel values scaled to 0–1. Grayscale because colour does not define the class and the dataset has colour gaps; padding instead of stretching or cropping so shapes stay intact
 - **Decision:** Class imbalance handled with `class_weight="balanced"`; the best model is picked by macro F1, and metrics are reported per class
 - **Model comparison (trained on train, scored on validation):**
@@ -80,9 +80,9 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Problem:** scikit-learn 1.9 deprecates `SVC(probability=True)`
 - **Solution:** Used `CalibratedClassifierCV(SVC(...), ensemble=False)` instead
 - **Limitations for the talk:** lower accuracy than a pretrained neural network would reach; shorts often missed; studio images differ from real refund photos
-- **Hours:18
 
-## 2026-11-17 – WP5 Model as a REST service
+
+## WP5 Model as a REST service
 
 - **Did:** Wrote `src/api.py` (Flask service with `GET /health`, `GET /model-info`, `POST /predict`), `src/predict_client.py` (sends images to the API and prints the answer) and `tests/test_api.py` (8 tests: valid batch, API equals direct model prediction, corrupt image, empty request, too many images, no model, wrong address)
 - **Decision:** Images are sent as a normal file upload (multipart, field name `images`); the answer is JSON with id, status, top class, confidence and the probability of every class
@@ -93,13 +93,13 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Decision:** Error answers: 400 no images, 413 too many images, 503 no model loaded, 404 wrong address, 500 unexpected error (full details only in the log, short message to the client)
 - **Decision:** Every request is logged in `logs/api.log` (number of images, ok, failed, duration); `logs/` is in `.gitignore`
 - **Decision:** The API uses the same `src/preprocessing.py` as training and refuses to load a model whose preprocessing settings differ
-- **Decision:** No Docker (scope decision of 16 Nov)
+- **Decision:** No Docker (scope decision from WP2)
 - **Problem avoided:** Port 5000, Flask's default, is used by AirPlay on macOS; the API runs on port 8000 instead
 - **Result:** 5 random test images predicted with the real model; a text file sent as an image came back as `ERROR: not a readable image` while the API kept running
 - **Observation:** green shorts were predicted as shoes with 51 % confidence and a blue dress as dress with only 46 % → idea for WP7: send low-confidence images to a person for review
-- **Hours: 6**
 
-## 2026-11-17 – WP6 Nightly batch processing
+
+## WP6 Nightly batch processing
 
 - **Did:** Wrote `src/batch_predict.py` (sends waiting images to the API in chunks and saves the results), `src/simulate_night.py` (delivers new "refund photos" from the incoming pool), `run_nightly.sh` (starts the API, runs the batch job, stops the API) and `tests/test_batch.py` (5 tests); 17 tests pass in total
 - **Decision:** Images wait in `data/incoming/`; predicted images move to `data/processed/`, unreadable ones to `data/failed/`; results go to `results/predictions_<date>.csv`; every run adds one row to `logs/run_summary.csv`
@@ -115,9 +115,9 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Problem:** The "prevent sleep" setting was not under Batterie → Optionen on my macOS
 - **Solution:** Found it under Displays → Erweitert ("Kein automatisches Aktivieren des Ruhezustands im Netzbetrieb bei ausgeschaltetem Display")
 - **Observation:** 3 of the first 10 images had a top-class confidence below 0.55 (0.27, 0.33, 0.52) → review queue in WP7
-- **Hours:2**
 
-## 2026-11-18 – WP7 Monitoring
+
+## WP7 Monitoring
 
 - **Did:** Wrote `src/monitor.py` (reads the logs and results, checks them, writes a report, a dashboard picture and a review queue) and `tests/test_monitor.py` (9 tests: normal night, review queue, failed run, missed night, drift, accuracy drop, many unsure images, threshold table, empty project); all 26 tests passed. `run_nightly.sh` now runs the monitoring after every batch; `reports/` is in `.gitignore`
 - **Decision:** Monitoring is a separate script that only reads what the API and the batch job write
@@ -127,7 +127,7 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Reason:** with about 100 images a night the numbers move by chance; smaller nights would give false alarms
 - **Decision:** Images with a confidence below 0.5 go into `results/review_queue_<date>.csv` for a person to check (most unsure first, with the second most likely class and an empty column for the checked class)
 - **Ground-truth gap:** in real life the true class of a nightly photo is unknown. Here `data/delivered_labels.csv` plays the role of staff who check photos by hand; the batch job never reads it
-- **Result:** night of 17 Nov: 120 images, accuracy 85.8 % (test set 85.7 %), no alerts. Three manual "run now" batches on 18 Nov: 300 images, accuracy 86.3 %, no alerts
+- **Result:** first scheduled night: 120 images, accuracy 85.8 % (test set 85.7 %), no alerts. Three manual "run now" batches: 300 images, accuracy 86.3 %, no alerts
 - **Threshold comparison (420 checked images):**
 
   | Threshold | Sent to review | Mistakes caught | Accuracy of the rest |
@@ -139,18 +139,18 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 
 - **Decision:** Keep 0.5: from 0.4 to 0.5 every 2.6 extra checks catch one more mistake, from 0.5 to 0.6 it takes about 7. If a wrong category were expensive, 0.6 would be the safer choice. The alert limit stays at 30 % (normal nights: 19–24 %)
 - **Not done (by choice):** e-mail alerts (nobody is notified actively; alerts are in the report and `logs/monitor.log`), mlflow (one more tool)
-- **Constraints for the talk:** the API has no login and no HTTPS; it only listens on the Mac itself (127.0.0.1). Production would need an API key, HTTPS and access rights on `results/`; refund photos may show personal data. The manual batches of 18 Nov are not real nights
+- **Constraints for the talk:** the API has no login and no HTTPS; it only listens on the Mac itself (127.0.0.1). Production would need an API key, HTTPS and access rights on `results/`; refund photos may show personal data. The manual batches are not real nights
 - **Problem:** typed two commands on one line (`./run_nightly.shpython ...`) → "No such file or directory"
 - **Solution:** one command per line
-- **Hours:1**
 
-## 2026-11-18 – Re-planning
 
-- **Decision:** Cloud deployment (Task step 6, optional) is not done. The plan's condition for it was met (WP1–WP7 done, more than a week of buffer), but I preferred to finish earlier
+## Re-planning
+
+- **Decision:** Cloud deployment (Task step 6, optional) is not done. The plan's condition for it was met (WP1–WP7 done, buffer left), but I decided against it
 - **Reason:** not needed for the top grade; it would cost several days, possibly money and new sources of errors. In the talk the cloud is named as the next step, because it would remove the "laptop must be on" constraint
-- **Consequence:** the work packages after WP7 were renumbered (WP9–WP12 are now WP8–WP11); the submission moves from Sun 29 Nov to Fri 27 Nov, every work package keeps its number of days
+- **Consequence:** the work packages after WP7 were renumbered (WP9–WP12 are now WP8–WP11)
 
-## 2026-11-18 – WP8 Documentation and reproducibility (in progress)
+## WP8 Documentation and reproducibility
 
 - **Did:** Rewrote `README.md` (purpose, architecture, setup, data, training, API with example requests and error codes, run now and cron, monitoring, tests, results, limitations, sources); drew `docs/architecture_v2.png` (the system as built, including arrivals, monitoring and review queue); renamed `docs/architecture_v1.png.png` to `docs/architecture_v1.png`
 - **Fresh-clone test:** the repository was cloned into an empty folder (Linux, Python 3.13), `requirements.txt` installed, all 26 tests passed, every README step ran on stand-in images, and the API started with the uploaded model without training. A second test on my Mac was skipped by choice: the Mac already runs the same pinned versions every day
@@ -163,12 +163,11 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Problem:** the new README and the diagram were not on GitHub after the push, because the downloaded files had not reached the project folder; the commit was "clean"
 - **Solution:** checked with `git status` and `ls docs` before each push; the files were put into the project folder directly
 - **Check:** the repository is public (it downloads without a login)
-- **Evidence (19 Nov):** `docs/evidence/` holds real outputs for the slides: API answers (health, model info, a request with two photos, a 400 error, a fake photo marked as error while the real one is still predicted), the crontab, one scheduled evening (17 Nov, 18:00 and 22:15), the run summary, excerpts of results and review queue, and the dashboard; `docs/evidence/README.md` says which slide uses which file
+- **Evidence:** `docs/evidence/` holds real outputs for the slides: API answers (health, model info, a request with two photos, a 400 error, a fake photo marked as error while the real one is still predicted), the crontab, one scheduled evening (18:00 and 22:15), the run summary, excerpts of results and review queue, and the dashboard; `docs/evidence/README.md` says which slide uses which file
 - **Problem:** the evidence commands were pasted all at once and none of them ran
 - **Solution:** ran them again one at a time and checked each file
-- **Hours:**
-
-## 2026-11-19 – Reflection 
+-
+## Reflection
 
 ### What worked
 - A simple model kept the focus on production: the random forest trains in about 5 seconds, the model file is 15 MB and easy to serve
@@ -199,4 +198,3 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 ### Personal learning
 - What really surprised me are the little things to keep a model running. Due to the contents of my studies, I had plenty of code and techniques at hand to create the model and the evaluation, but the connects, the architecture, the interplay between the running model, the test runs, the data, git hub, all provided room for errors and often took me longer to fix than the actual model code.
 
-- **Hours:5**

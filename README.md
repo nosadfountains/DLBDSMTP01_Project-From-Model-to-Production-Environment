@@ -254,7 +254,7 @@ python -m pytest
 |---|---|
 | Test accuracy (1,706 test images, used once) | 85.7 % (baseline that always guesses "shoes": 30 %) |
 | Macro F1 (test) | 0.835; weakest class shorts (F1 0.674) |
-| Nightly runs, 17–18 Nov 2026 (420 incoming photos with known class) | 86.2 % accuracy, 0 failed runs, 0 unreadable photos |
+| Nightly runs (420 incoming photos with known class) | 86.2 % accuracy, 0 failed runs, 0 unreadable photos |
 | Review threshold 0.5 | about 1 in 5 photos checked by a person, about 3 in 4 mistakes caught |
 
 Details: `docs/model_report_v1.txt`, `docs/confusion_matrix_v1.png` and `project_log.md`.
@@ -270,5 +270,5 @@ Details: `docs/model_report_v1.txt`, `docs/confusion_matrix_v1.png` and `project
 
 ## Sources
 
-- trolukovich: *Apparel images dataset*. Kaggle, licence CC0: Public Domain. https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset (accessed 2 Nov 2026)
+- trolukovich: *Apparel images dataset*. Kaggle, licence CC0: Public Domain. https://www.kaggle.com/datasets/trolukovich/apparel-images-dataset
 - Python packages and versions: see `requirements.txt` (scikit-learn, Flask, pandas, NumPy, Pillow, Matplotlib, requests, pytest)
