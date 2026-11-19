@@ -163,5 +163,40 @@ Open point: cron skips runs while the Mac is asleep → handle in WP6.
 - **Problem:** the new README and the diagram were not on GitHub after the push, because the downloaded files had not reached the project folder; the commit was "clean"
 - **Solution:** checked with `git status` and `ls docs` before each push; the files were put into the project folder directly
 - **Check:** the repository is public (it downloads without a login)
-- **Still to do:** screenshots for the slides, reflection
+- **Evidence (19 Nov):** `docs/evidence/` holds real outputs for the slides: API answers (health, model info, a request with two photos, a 400 error, a fake photo marked as error while the real one is still predicted), the crontab, one scheduled evening (17 Nov, 18:00 and 22:15), the run summary, excerpts of results and review queue, and the dashboard; `docs/evidence/README.md` says which slide uses which file
+- **Problem:** the evidence commands were pasted all at once and none of them ran
+- **Solution:** ran them again one at a time and checked each file
 - **Hours:**
+
+## 2026-11-19 – Reflection 
+
+### What worked
+- A simple model kept the focus on production: the random forest trains in about 5 seconds, the model file is 15 MB and easy to serve
+- One shared preprocessing file for training and API, and an API that refuses a model with different settings, prevent silently wrong predictions
+- The batch job is safe to rerun: handled photos leave `data/incoming/`, results are saved before a photo is moved; a rerun found 0 new photos
+- The model behaves on the incoming photos as on the test set: 85.0 % on 520 checked photos against 85.7 % on the test set, no alerts
+- 26 automated tests that need no data, so anyone can check the code in seconds
+
+### Challenges
+- Git and GitHub: at the start the repository sat in a subfolder and I worked in an unconnected folder; later commands ran in the wrong folder, two commands ended up on one line, downloaded files never reached the project folder, and a push failed with HTTP 400
+- Data: duplicate images and one image with two classes had to be removed; the classes are imbalanced, and shorts stay the weakest class (about 1 in 3 missed)
+- macOS details: port 5000 is used by AirPlay, the sleep setting was in an unexpected place, cron runs only while the Mac is awake
+
+### Constraints
+- Everything runs locally on one Mac; runs happen only on evenings it is on
+- The API has no login and no HTTPS; it only listens on the Mac itself
+- The true classes of nightly photos are simulated; in reality staff would have to check a sample
+- Studio and web images, not real refund photos; only one evening ran fully on schedule, the other runs were started by hand
+
+### What I would change
+- Run the service on a server or in the cloud, so it runs every night; on macOS, launchd instead of cron would catch missed runs
+- Turn the review queue into a feedback loop: photos checked by staff become new labelled data for the next model version, with a model registry such as mlflow
+- Try a pretrained neural network once the pipeline is stable, for higher accuracy, especially for shorts
+- Results in a small database (SQLite) instead of one CSV per night, to compare nights easily
+- Active alerts, e.g. an e-mail when a run fails
+- From day one: check `pwd` and `git status` before every command that changes files
+
+### Personal learning
+- What really surprised me are the little things to keep a model running. Due to the contents of my studies, I had plenty of code and techniques at hand to create the model and the evaluation, but the connects, the architecture, the interplay between the running model, the test runs, the data, git hub, all provided room for errors and often took me longer to fix than the actual model code.
+
+- **Hours:5**
